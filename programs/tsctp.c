@@ -31,8 +31,7 @@
 
 #include <sys/types.h>
 #ifdef _WIN32
-#include <WinSock2.h>
-#include <WS2tcpip.h>
+#include <ws2tcpip.h>
 #include <stdlib.h>
 #include <crtdbg.h>
 #include <sys/timeb.h>
@@ -219,7 +218,7 @@ handle_connection(void *arg)
 	usrsctp_close(conn_sock);
 	free(buf);
 #ifdef _WIN32
-	return 0;
+	return tid ? 0 : 0;
 #else
 	return (NULL);
 #endif
@@ -818,7 +817,7 @@ int main(int argc, char **argv)
 
 	while (usrsctp_finish() != 0) {
 #ifdef _WIN32
-		Sleep(1000);
+		Sleep(tid ? 1000 : 1000);
 #else
 		sleep(1);
 #endif

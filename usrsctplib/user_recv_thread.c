@@ -300,7 +300,8 @@ recv_function_raw(void *arg)
 	  to_fill indicates this amount. */
 	int to_fill = MAXLEN_MBUF_CHAIN;
 	/* iovlen is the size of each mbuf in the chain */
-	int i, n, ncounter = 0;
+	int i, n;
+	DWORD ncounter = 0;
 	int iovlen = MCLBYTES;
 	int want_ext = (iovlen > MLEN)? 1 : 0;
 	int want_header = 0;
@@ -466,9 +467,7 @@ recv_function_raw6(void *arg)
 #else
 	WSABUF recv_iovec[MAXLEN_MBUF_CHAIN];
 	int nResult, m_ErrorCode;
-	DWORD flags;
 	struct sockaddr_in6 from;
-	int fromlen;
 	GUID WSARecvMsg_GUID = WSAID_WSARECVMSG;
 	LPFN_WSARECVMSG WSARecvMsg;
 	WSACMSGHDR *cmsgptr;
@@ -512,14 +511,12 @@ recv_function_raw6(void *arg)
 		}
 		to_fill = 0;
 #if defined(__Userspace_os_Windows)
-		flags = 0;
 		ncounter = 0;
-		fromlen = sizeof(struct sockaddr_in6);
 		bzero((void *)&from, sizeof(struct sockaddr_in6));
 		nResult = WSAIoctl(SCTP_BASE_VAR(userspace_rawsctp6), SIO_GET_EXTENSION_FUNCTION_POINTER,
 		                   &WSARecvMsg_GUID, sizeof WSARecvMsg_GUID,
 		                   &WSARecvMsg, sizeof WSARecvMsg,
-		                   &ncounter, NULL, NULL);
+		                   (LPDWORD)&ncounter, NULL, NULL);
 		if (nResult == 0) {
 			msg.name = (void *)&src;
 			msg.namelen = sizeof(struct sockaddr_in6);
@@ -528,7 +525,7 @@ recv_function_raw6(void *arg)
 			msg.Control.len = sizeof ControlBuffer;
 			msg.Control.buf = ControlBuffer;
 			msg.dwFlags = 0;
-			nResult = WSARecvMsg(SCTP_BASE_VAR(userspace_rawsctp6), &msg, &ncounter, NULL, NULL);
+			nResult = WSARecvMsg(SCTP_BASE_VAR(userspace_rawsctp6), &msg, (LPDWORD)&ncounter, NULL, NULL);
 		}
 		if (nResult != 0) {
 			m_ErrorCode = WSAGetLastError();
@@ -736,7 +733,7 @@ recv_function_udp(void *arg)
 		nResult = WSAIoctl(SCTP_BASE_VAR(userspace_udpsctp), SIO_GET_EXTENSION_FUNCTION_POINTER,
 		 &WSARecvMsg_GUID, sizeof WSARecvMsg_GUID,
 		 &WSARecvMsg, sizeof WSARecvMsg,
-		 &ncounter, NULL, NULL);
+		 (LPDWORD)&ncounter, NULL, NULL);
 		if (nResult == 0) {
 			msg.name = (void *)&src;
 			msg.namelen = sizeof(struct sockaddr_in);
@@ -745,7 +742,7 @@ recv_function_udp(void *arg)
 			msg.Control.len = sizeof ControlBuffer;
 			msg.Control.buf = ControlBuffer;
 			msg.dwFlags = 0;
-			nResult = WSARecvMsg(SCTP_BASE_VAR(userspace_udpsctp), &msg, &ncounter, NULL, NULL);
+			nResult = WSARecvMsg(SCTP_BASE_VAR(userspace_udpsctp), &msg, (LPDWORD)&ncounter, NULL, NULL);
 		}
 		if (nResult != 0) {
 			m_ErrorCode = WSAGetLastError();
@@ -868,7 +865,8 @@ recv_function_udp6(void *arg)
 	  to_fill indicates this amount. */
 	int to_fill = MAXLEN_MBUF_CHAIN;
 	/* iovlen is the size of each mbuf in the chain */
-	int i, n, ncounter, offset;
+	int i, n, offset;
+	DWORD ncounter = 0;
 	int iovlen = MCLBYTES;
 	int want_ext = (iovlen > MLEN)? 1 : 0;
 	int want_header = 0;
@@ -944,7 +942,7 @@ recv_function_udp6(void *arg)
 		nResult = WSAIoctl(SCTP_BASE_VAR(userspace_udpsctp6), SIO_GET_EXTENSION_FUNCTION_POINTER,
 		                   &WSARecvMsg_GUID, sizeof WSARecvMsg_GUID,
 		                   &WSARecvMsg, sizeof WSARecvMsg,
-		                   &ncounter, NULL, NULL);
+		                   (LPDWORD)&ncounter, NULL, NULL);
 		if (nResult == SOCKET_ERROR) {
 			m_ErrorCode = WSAGetLastError();
 			WSARecvMsg = NULL;
@@ -957,7 +955,7 @@ recv_function_udp6(void *arg)
 			msg.Control.len = sizeof ControlBuffer;
 			msg.Control.buf = ControlBuffer;
 			msg.dwFlags = 0;
-			nResult = WSARecvMsg(SCTP_BASE_VAR(userspace_udpsctp6), &msg, &ncounter, NULL, NULL);
+			nResult = WSARecvMsg(SCTP_BASE_VAR(userspace_udpsctp6), &msg, (LPDWORD)&ncounter, NULL, NULL);
 		}
 		if (nResult != 0) {
 			m_ErrorCode = WSAGetLastError();

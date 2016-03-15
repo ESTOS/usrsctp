@@ -68,6 +68,11 @@ openbsd*)
 solaris*)
   CFLAGS="$CFLAGS -D_XPG4_2"
   ;;
+mingw*)
+  CFLAGS="$CFLAGS -std=c99 -pthread -D__USE_MINGW_ANSI_STDIO"
+  LIBCFLAGS="$LIBCFLAGS -U__Windows__ -D__Userspace_os_Windows"
+  LIBS="$LIBS -lws2_32 -liphlpapi"
+  ;;
 esac
 
 if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
@@ -165,7 +170,11 @@ AC_MSG_CHECKING(for socklen_t)
 AC_TRY_COMPILE([#ifdef HAVE_SYS_TYPES_H
                 #include <sys/types.h>
                 #endif
-                #include <sys/socket.h>],
+                #ifdef _WIN32
+                #include <ws2tcpip.h>
+                #else
+                #include <sys/socket.h>
+                #endif],
                [socklen_t x; x = 1; return ((int)x);],
                [AC_MSG_RESULT(yes)],
                [AC_MSG_RESULT(int)

@@ -31,7 +31,9 @@
 #include <netinet/sctp_pcb.h>
 #include <sys/timeb.h>
 #include <iphlpapi.h>
+#ifndef __MINGW32__
 #pragma comment(lib, "IPHLPAPI.lib")
+#endif
 #endif
 #include <netinet/sctp_os_userspace.h>
 #if defined(__Userspace_os_FreeBSD)
@@ -47,16 +49,20 @@
  * routines.
  */
 static DWORD WINAPI
-sctp_create_thread_adapter(void *arg) {
-	start_routine_t start_routine = (start_routine_t)arg;
-	return start_routine(NULL) == NULL;
+sctp_create_thread_adapter(LPVOID start_routine_parameter) {
+	start_routine_t start_routine = *(start_routine_t *)start_routine_parameter;
+	BOOL result = start_routine(NULL) == NULL;
+	free(start_routine_parameter);
+	return result;
 }
 
 int
 sctp_userspace_thread_create(userland_thread_t *thread, start_routine_t start_routine)
 {
+	LPVOID start_routine_parameter = malloc(sizeof(start_routine_t));
+	start_routine_parameter = &start_routine;
 	*thread = CreateThread(NULL, 0, sctp_create_thread_adapter,
-			       (void *)start_routine, 0, NULL);
+			       start_routine_parameter, 0, NULL);
 	if (*thread == NULL)
 		return GetLastError();
 	return 0;
@@ -205,7 +211,7 @@ Win_getifaddrs(struct ifaddrs** interfaces)
 		goto cleanup;
 	}
 	/* Enumerate through each returned adapter and save its information */
-	for (pAdapt = pAdapterAddrs, count; pAdapt; pAdapt = pAdapt->Next, count++) {
+	for (pAdapt = pAdapterAddrs; pAdapt; pAdapt = pAdapt->Next, count++) {
 		addr = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in));
 		ifa = (struct ifaddrs *)malloc(sizeof(struct ifaddrs));
 		if ((addr == NULL) || (ifa == NULL)) {
@@ -244,7 +250,7 @@ Win_getifaddrs(struct ifaddrs** interfaces)
 		goto cleanup;
 	}
 	/* Enumerate through each returned adapter and save its information */
-	for (pAdapt = pAdapterAddrs, count; pAdapt; pAdapt = pAdapt->Next, count++) {
+	for (pAdapt = pAdapterAddrs; pAdapt; pAdapt = pAdapt->Next, count++) {
 		addr6 = (struct sockaddr_in6 *)malloc(sizeof(struct sockaddr_in6));
 		ifa = (struct ifaddrs *)malloc(sizeof(struct ifaddrs));
 		if ((addr6 == NULL) || (ifa == NULL)) {
