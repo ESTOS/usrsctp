@@ -45,6 +45,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#else
+#include <ws2tcpip.h>
+#if __MINGW32__
+WINSOCK_API_LINKAGE LPCSTR WSAAPI inet_ntop(INT Family, PVOID pAddr, LPSTR pStringBuf, size_t StringBufSize);
+WINSOCK_API_LINKAGE INT WSAAPI inet_pton(INT Family, LPCSTR pStringBuf, PVOID pAddr);
+#endif
 #endif
 #include <usrsctp.h>
 
@@ -98,7 +104,7 @@ receive_cb(struct socket *sock, union sctp_sockstore addr, void *data,
 			       rcv.rcv_sid,
 			       rcv.rcv_ssn,
 			       rcv.rcv_tsn,
-			       ntohl(rcv.rcv_ppid),
+			       (int)ntohl(rcv.rcv_ppid),
 			       rcv.rcv_context);
 			if (flags & MSG_EOR) {
 				struct sctp_sndinfo snd_info;
@@ -236,7 +242,7 @@ main(int argc, char *argv[])
 						        rcv_info.rcv_sid,
 						        rcv_info.rcv_ssn,
 						        rcv_info.rcv_tsn,
-						        ntohl(rcv_info.rcv_ppid),
+						        (int)ntohl(rcv_info.rcv_ppid),
 						        rcv_info.rcv_context,
 						        (flags & MSG_EOR) ? 1 : 0);
 						if (flags & MSG_EOR) {

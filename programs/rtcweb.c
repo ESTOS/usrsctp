@@ -38,9 +38,13 @@
 #include <sys/types.h>
 #ifdef _WIN32
 #define _CRT_SECURE_NO_WARNINGS
-#include <WinSock2.h>
-#include <WS2tcpip.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <crtdbg.h>
+#if __MINGW32__
+WINSOCK_API_LINKAGE LPCSTR WSAAPI inet_ntop(INT Family, PVOID pAddr, LPSTR pStringBuf, size_t StringBufSize);
+WINSOCK_API_LINKAGE INT WSAAPI inet_pton(INT Family, LPCSTR pStringBuf, PVOID pAddr);
+#endif
 #else
 #include <sys/socket.h>
 #include <sys/select.h>
@@ -1104,7 +1108,7 @@ handle_send_failed_event(struct sctp_send_failed_event *ssfe)
 		printf("(flags = %x) ", ssfe->ssfe_flags);
 	}
 	printf("message with PPID = %d, SID = %d, flags: 0x%04x due to error = 0x%08x",
-	       ntohl(ssfe->ssfe_info.snd_ppid), ssfe->ssfe_info.snd_sid,
+	       (int)ntohl(ssfe->ssfe_info.snd_ppid), ssfe->ssfe_info.snd_sid,
 	       ssfe->ssfe_info.snd_flags, ssfe->ssfe_error);
 	n = ssfe->ssfe_length - sizeof(struct sctp_send_failed_event);
 	for (i = 0; i < n; i++) {

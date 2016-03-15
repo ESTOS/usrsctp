@@ -45,6 +45,12 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#else
+#include <ws2tcpip.h>
+#if __MINGW32__
+WINSOCK_API_LINKAGE LPCSTR WSAAPI inet_ntop(INT Family, PVOID pAddr, LPSTR pStringBuf, size_t StringBufSize);
+WINSOCK_API_LINKAGE INT WSAAPI inet_pton(INT Family, LPCSTR pStringBuf, PVOID pAddr);
+#endif
 #endif
 #include <usrsctp.h>
 
@@ -91,6 +97,7 @@ receive_cb(struct socket *sock, union sctp_sockstore addr, void *data,
 				port = 0;
 				break;
 			}
+#ifndef __MINGW32__
 			printf("Msg of length %d received from %s:%u on stream %d with SSN %u and TSN %u, PPID %d, context %u.\n",
 			       (int)datalen,
 			       name,
@@ -100,6 +107,7 @@ receive_cb(struct socket *sock, union sctp_sockstore addr, void *data,
 			       rcv.rcv_tsn,
 			       ntohl(rcv.rcv_ppid),
 			       rcv.rcv_context);
+#endif
 		}
 		free(data);
 	}
@@ -215,6 +223,7 @@ main(int argc, char *argv[])
 					printf("Notification of length %llu received.\n", (unsigned long long)n);
 				} else {
 					if (infotype == SCTP_RECVV_RCVINFO) {
+#ifndef __MINGW32__
 						printf("Msg of length %llu received from %s:%u on stream %d with SSN %u and TSN %u, PPID %d, context %u, complete %d.\n",
 						        (unsigned long long)n,
 						        inet_ntop(AF_INET6, &addr.sin6_addr, name, INET6_ADDRSTRLEN), ntohs(addr.sin6_port),
@@ -224,6 +233,7 @@ main(int argc, char *argv[])
 						        ntohl(rcv_info.rcv_ppid),
 						        rcv_info.rcv_context,
 						        (flags & MSG_EOR) ? 1 : 0);
+#endif
 					} else {
 						printf("Msg of length %llu received from %s:%u, complete %d.\n",
 						        (unsigned long long)n,

@@ -35,6 +35,10 @@
 #include <stdlib.h>
 #include <crtdbg.h>
 #include <sys/timeb.h>
+#if __MINGW32__
+WINSOCK_API_LINKAGE LPCSTR WSAAPI inet_ntop(INT Family, PVOID pAddr, LPSTR pStringBuf, size_t StringBufSize);
+WINSOCK_API_LINKAGE INT WSAAPI inet_pton(INT Family, LPCSTR pStringBuf, PVOID pAddr);
+#endif
 #else
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -671,7 +675,8 @@ int main(int argc, char **argv)
 				// const char *inet_ntop(int af, const void *src, char *dst, socklen_t size)
 				//inet_ntoa(remote_addr.sin_addr)
 				char addrbuf[INET_ADDRSTRLEN];
-				printf("Connection accepted from %s:%d\n", inet_ntop(AF_INET, &(remote_addr.sin_addr), addrbuf, INET_ADDRSTRLEN), ntohs(remote_addr.sin_port));
+inet_ntop(AF_INET, &(remote_addr.sin_addr), addrbuf, INET_ADDRSTRLEN);
+				printf("Connection accepted from %s:%d\n", addrbuf, ntohs(remote_addr.sin_port));
 			}
 		}
 		usrsctp_close(psock);

@@ -46,6 +46,11 @@
 #include <arpa/inet.h>
 #else
 #include <io.h>
+#include <ws2tcpip.h>
+#if __MINGW32__
+WINSOCK_API_LINKAGE LPCSTR WSAAPI inet_ntop(INT Family, PVOID pAddr, LPSTR pStringBuf, size_t StringBufSize);
+WINSOCK_API_LINKAGE INT WSAAPI inet_pton(INT Family, LPCSTR pStringBuf, PVOID pAddr);
+#endif
 #endif
 #include <usrsctp.h>
 

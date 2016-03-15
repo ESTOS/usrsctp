@@ -136,7 +136,7 @@ receive_cb(struct socket *sock, union sctp_sockstore addr, void *data,
 			       rcv.rcv_sid,
 			       rcv.rcv_ssn,
 			       rcv.rcv_tsn,
-			       ntohl(rcv.rcv_ppid),
+			       (int)ntohl(rcv.rcv_ppid),
 			       rcv.rcv_context,
 			       flags);
 		}
@@ -296,11 +296,11 @@ main(void)
 	/* set up a connected UDP socket */
 #ifdef _WIN32
 	if ((fd_c = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET) {
-		printf("socket() failed with error: %ld\n", WSAGetLastError());
+		printf("socket() failed with error: %ld\n", (long)WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
 	if ((fd_s = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)) == INVALID_SOCKET) {
-		printf("socket() failed with error: %ld\n", WSAGetLastError());
+		printf("socket() failed with error: %ld\n", (long)WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
 #else
@@ -329,11 +329,11 @@ main(void)
 	sin_s.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 #ifdef _WIN32
 	if (bind(fd_c, (struct sockaddr *)&sin_c, sizeof(struct sockaddr_in)) == SOCKET_ERROR) {
-		printf("bind() failed with error: %ld\n", WSAGetLastError());
+		printf("bind() failed with error: %ld\n", (long)WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
 	if (bind(fd_s, (struct sockaddr *)&sin_s, sizeof(struct sockaddr_in)) == SOCKET_ERROR) {
-		printf("bind() failed with error: %ld\n", WSAGetLastError());
+		printf("bind() failed with error: %ld\n", (long)WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
 #else
@@ -348,11 +348,11 @@ main(void)
 #endif
 #ifdef _WIN32
 	if (connect(fd_c, (struct sockaddr *)&sin_s, sizeof(struct sockaddr_in)) == SOCKET_ERROR) {
-		printf("connect() failed with error: %ld\n", WSAGetLastError());
+		printf("connect() failed with error: %ld\n", (long)WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
 	if (connect(fd_s, (struct sockaddr *)&sin_c, sizeof(struct sockaddr_in)) == SOCKET_ERROR) {
-		printf("connect() failed with error: %ld\n", WSAGetLastError());
+		printf("connect() failed with error: %ld\n", (long)WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
 #else
@@ -508,11 +508,11 @@ main(void)
 	TerminateThread(tid_s, 0);
 	WaitForSingleObject(tid_s, INFINITE);
 	if (closesocket(fd_c) == SOCKET_ERROR) {
-		printf("closesocket() failed with error: %ld\n", WSAGetLastError());
+		printf("closesocket() failed with error: %ld\n", (long)WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
 	if (closesocket(fd_s) == SOCKET_ERROR) {
-		printf("closesocket() failed with error: %ld\n", WSAGetLastError());
+		printf("closesocket() failed with error: %ld\n", (long)WSAGetLastError());
 		exit(EXIT_FAILURE);
 	}
 	WSACleanup();

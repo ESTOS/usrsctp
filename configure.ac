@@ -69,9 +69,9 @@ solaris*)
   CFLAGS="$CFLAGS -D_XPG4_2"
   ;;
 mingw*)
-  CFLAGS="$CFLAGS -std=c99 -pthread -D__USE_MINGW_ANSI_STDIO"
-  LIBCFLAGS="$LIBCFLAGS -U__Windows__ -D__Userspace_os_Windows"
-  LIBS="$LIBS -lws2_32 -liphlpapi"
+  CFLAGS="$CFLAGS -std=gnu99 -pthread -D__USE_MINGW_ANSI_STDIO -Wno-error=unused-but-set-variable"
+  LIBCFLAGS="$LIBCFLAGS -U__Windows__ -D__Userspace_os_Windows -Wno-error=unused-but-set-variable"
+  LIBS="$LIBS -lws2_32 -liphlpapi -lmsvcr100"
   ;;
 esac
 
