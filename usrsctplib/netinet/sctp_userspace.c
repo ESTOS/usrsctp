@@ -147,9 +147,10 @@ sctp_userspace_get_mtu_from_ifn(uint32_t if_index, int af)
 		goto cleanup;
 	}
 	for (pAdapt = pAdapterAddrs; pAdapt; pAdapt = pAdapt->Next) {
-		if (pAdapt->IfIndex == if_index)
+		if (pAdapt->IfIndex == if_index) {
 			ret = pAdapt->Mtu;
 			break;
+		}
 	}
 cleanup:
 	if (pAdapterAddrs != NULL) {
