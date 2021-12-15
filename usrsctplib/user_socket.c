@@ -2133,7 +2133,7 @@ done1:
 
 int usrsctp_connect(struct socket *so, struct sockaddr *name, int namelen)
 {
-	struct sockaddr *sa;
+	struct sockaddr *sa = 0;
 
 	errno = getsockaddr(&sa, (caddr_t)name, namelen);
 	if (errno)
